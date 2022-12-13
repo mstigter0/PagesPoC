@@ -36,7 +36,7 @@ jobs:
           
       - name: Push files to target
         run: |
-          cp -r build/dist/* deploy
+          cp -r build/* deploy
           cd deploy
           touch .nojekyll
           echo ${{ env.URL }} > CNAME
