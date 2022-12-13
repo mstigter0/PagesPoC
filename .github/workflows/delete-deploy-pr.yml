@@ -9,7 +9,7 @@ on:
       - '**.md'
 
 env:
-  PR_REPO_NAME: pr-${{ github.event.pull_request.node_id }}
+  PR_REPO_NAME: PagesPoc-pr-${{ github.event.pull_request.node_id }}
 
 jobs:
   delete-page-host:
