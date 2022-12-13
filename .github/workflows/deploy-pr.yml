@@ -50,7 +50,6 @@ jobs:
       
       - name: Push files to target
         run: |
-          mkdir pr-build
           cp -r pr-build/* pr-deploy
           cd pr-deploy
           touch .nojekyll
