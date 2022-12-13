@@ -1,0 +1,64 @@
+name: Pull Request Build and Deploy
+on:
+  pull_request:
+    branches: [ development ]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '**.md'
+
+env:
+  PR_REPO_NAME: PagesPoc-pr-${{ github.event.pull_request.node_id }}
+
+jobs:
+  create-page-host:
+    runs-on: ubuntu-latest
+    name: Creating Organization Repository
+    steps:
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+      - name: Creating GitHub Organization Repository
+        uses: repo-ctrl/create-repo-action@main 
+        id: create-repo
+        with:
+          repo-name: '${{ env.PR_REPO_NAME }}' 
+          org-admin-token: '${{ secrets.PAT }}'
+      - name: Log URL to the repo
+        run: echo "The new repo is ${{ steps.create-repo.outputs.repo-url }}"
+    
+  pr-build-deploy:
+    needs: create-page-host
+    runs-on: ubuntu-latest
+    environment: 
+      name: pr-staging
+      url: https://mstigter0.github.io/${{ env.PR_REPO_NAME }}/
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+      
+      # https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
+      - name: Set GitHub Actions as Commit Author
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email github-actions@github.com
+          
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          path: 'pr-build'
+      
+      - name: Checkout temporary deployment target repo
+        uses: actions/checkout@v2
+        with:
+          repository: mstigter0/${{ env.PR_REPO_NAME }}
+          path: 'pr-deploy'
+          token: ${{ secrets.PAT }}
+      
+      - name: Push files to target
+        run: |
+          cp -r pr-build/dist/* pr-deploy
+          cd pr-deploy
+          touch .nojekyll
+          git add .
+          git commit -m $GITHUB_SHA
+          git branch -M gh-pages
+          git push -u origin gh-pages
