@@ -50,7 +50,8 @@ jobs:
       
       - name: Push files to target
         run: |
-          cp -r pr-build/dist/* pr-deploy
+          mkdir pr-build
+          cp -r pr-build/* pr-deploy
           cd pr-deploy
           touch .nojekyll
           git add .
