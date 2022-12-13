@@ -1,7 +1,8 @@
 name: Pull Request Build and Deploy
 on:
   pull_request:
-    branches: [ development ]
+    branches: 
+    - development
     paths-ignore:
       - '.github/workflows/**'
       - '**.md'
